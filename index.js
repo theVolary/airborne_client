@@ -24,7 +24,9 @@ exports.createClient = function(_options, _cb) {
   };
 
   var resolveTag = function(tag, thing) {
-    return tag || (_options.tags && _options.tags[thing.name] ? _options.tags[thing.name] : null) || "master";
+    return tag || (_options.tags && _options.tags[thing.name] 
+                    ? _options.tags[thing.name] 
+                    : _options.tag) || "master";
   };
 
   var apiUrlBase = _options.url + '/_rest/api/';
@@ -90,13 +92,5 @@ exports.createClient = function(_options, _cb) {
       _cb && _cb("Unable to retrieve available APIs.");
     }
   });
-
-  /* 
-
-  1.  Make HTTP call to airborne meta/proxy end point.
-  2.  Add routes to client object with HTTP proxy stuff.
-  3.  Return client in callback.
-
-  */  
 
 };
