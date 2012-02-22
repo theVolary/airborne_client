@@ -24,7 +24,9 @@ exports.createClient = function(_options, _cb) {
   };
 
   var resolveTag = function(tag, thing) {
-    return tag || (_options.tags && _options.tags[thing.name] ? _options.tags[thing.name] : null) || "master";
+    return tag || (_options.tags && _options.tags[thing.name] 
+                    ? _options.tags[thing.name] 
+                    : _options.tag) || "master";
   };
 
   var apiUrlBase = _options.url + '/_rest/api/';
