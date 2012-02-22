@@ -91,12 +91,4 @@ exports.createClient = function(_options, _cb) {
     }
   });
 
-  /* 
-
-  1.  Make HTTP call to airborne meta/proxy end point.
-  2.  Add routes to client object with HTTP proxy stuff.
-  3.  Return client in callback.
-
-  */  
-
 };
