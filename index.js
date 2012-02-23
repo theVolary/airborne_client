@@ -11,7 +11,7 @@ exports.createClient = function(_options, _cb) {
   var requestProxy = function(options, cb) {
     options.method = options.method || "GET";
     request(options, function(error, res, body) {
-      var result = null;
+      var result = body;
       if (body && typeof body === "string") {
         try {
           result = JSON.parse(body);
