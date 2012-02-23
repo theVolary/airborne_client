@@ -2,7 +2,6 @@
     "name": "airborne_client",
     "description": "Utility for connecting to airborne",
     "version": "0.0.2",
-    "private": true,
     "main": "index.js",
     "engines": {
         "node": "0.4.x"
