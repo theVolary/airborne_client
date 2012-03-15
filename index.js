@@ -46,6 +46,12 @@ exports.createClient = function(_options, _cb) {
           uri: apiUrlBase + thing.name + "/" + tag + "/" + "?token=" + this.apiKey
         }, cb);
       },
+      exists: function(options, cb) {
+        var tag = resolveTag(options, thing);
+        requestProxy({
+          uri: apiUrlBase + thing.name + "/" + tag + "/exists/" + options.id + "?token=" + this.apiKey
+        }, cb);
+      },
       find: function(options, cb) {
         var tag = resolveTag(options, thing);
         requestProxy({
