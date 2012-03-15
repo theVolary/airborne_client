@@ -23,7 +23,8 @@ exports.createClient = function(_options, _cb) {
     });
   };
 
-  var resolveTag = function(tag, thing) {
+  var resolveTag = function(options, thing) {
+    var tag = options && options.tag;
     return tag || (_options.tags && _options.tags[thing.name] 
                     ? _options.tags[thing.name] 
                     : _options.tag) || "master";
@@ -34,26 +35,32 @@ exports.createClient = function(_options, _cb) {
     var api = {
       apiKey: apiKey,
       get: function(options, cb) {
-        var tag = resolveTag(options.tag, thing);
+        var tag = resolveTag(options, thing);
         requestProxy({ 
           uri: apiUrlBase + thing.name + "/" + tag + "/" + options.id + "?token=" + this.apiKey
         }, cb);
       },
       list: function(options, cb) {
-        var tag = resolveTag(options.tag, thing);
+        var tag = resolveTag(options, thing);
         requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag + "/" + "?token=" + this.apiKey
         }, cb);
       },
+      exists: function(options, cb) {
+        var tag = resolveTag(options, thing);
+        requestProxy({
+          uri: apiUrlBase + thing.name + "/" + tag + "/exists/" + options.id + "?token=" + this.apiKey
+        }, cb);
+      },
       find: function(options, cb) {
-        var tag = resolveTag(options.tag, thing);
+        var tag = resolveTag(options, thing);
         requestProxy({
           token: this.apiKey,
           uri: apiUrlBase + thing.name + "/" + tag + "/" + "?" + qs.stringify(options)
         }, cb);
       },
       save: function(options, cb) {
-        var tag = resolveTag(options.tag, thing);
+        var tag = resolveTag(options, thing);
         requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag + "?token=" + this.apiKey,
           method: "PUT",
@@ -61,7 +68,7 @@ exports.createClient = function(_options, _cb) {
         }, cb);
       },
       remove: function(options, cb) {
-        var tag = resolveTag(options.tag, thing);
+        var tag = resolveTag(options, thing);
         requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag + "?token=" + this.apiKey,
           method: "DELETE",
