@@ -11,15 +11,23 @@ exports.createClient = function(_options, _cb) {
   var requestProxy = function(options, cb) {
     options.method = options.method || "GET";
     request(options, function(error, res, body) {
-      var result = body;
-      if (body && typeof body === "string") {
-        try {
-          result = JSON.parse(body);
-        } catch(ex) {
+      if (error) cb(error); else {
+        var result = null;
+        // inspect statusCode for non-200 block code (which means error)
+        if (!res.statusCode || (res.statusCode < 200 || res.statusCode > 299)) {
+          cb(body || 'error making request');
+        } else {
           result = body;
-        }
-      }
-      cb(error, result);
+          if (body && typeof body === "string") {
+            try {
+              result = JSON.parse(body);
+            } catch(ex) {
+              result = body;
+            }
+          }
+          cb(null, result);
+        }        
+      }      
     });
   };
 
