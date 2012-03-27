@@ -64,7 +64,7 @@ exports.createClient = function(_options, _cb) {
         var tag = resolveTag(options, thing);
         requestProxy({
           token: this.apiKey,
-          uri: apiUrlBase + thing.name + "/" + tag + "/" + "?" + qs.stringify(options)
+          uri: apiUrlBase + thing.name + "/" + tag + "/" + "?q=" + qs.escape(JSON.stringify(options))
         }, cb);
       },
       save: function(options, cb) {
