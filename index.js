@@ -69,6 +69,7 @@ exports.createClient = function(_options, _cb) {
       },
       save: function(options, cb) {
         var tag = resolveTag(options, thing);
+        options.doc.type = thing.name;
         requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag + "?token=" + this.apiKey,
           method: "PUT",
