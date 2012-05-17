@@ -122,9 +122,6 @@ exports.createClient = function(_options, _cb) {
           method: "DELETE",
           json: options
         }, cb);
-      },
-      getJsonSchema: function(cb) {
-        cb(null, jsonSchemas[thing.name]);
       }
     };
     return api;
