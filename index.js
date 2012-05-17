@@ -1,6 +1,11 @@
 var _ = require("underscore")._,
     request = require("request"),
-    qs = require("querystring");
+    qs = require("querystring"),
+    validate = require('json-schema').validate;
+
+//local cache for json-schema validation docs (only fetch once per app lifetime)
+//TODO: make aggressive caching configurable
+var jsonSchemas = {};
 
 exports.createClient = function(_options, _cb) {
   _options = _.extend({
@@ -69,12 +74,46 @@ exports.createClient = function(_options, _cb) {
       },
       save: function(options, cb) {
         var tag = resolveTag(options, thing);
-        options.doc.type = thing.name;
-        requestProxy({
-          uri: apiUrlBase + thing.name + "/" + tag + "?token=" + this.apiKey,
-          method: "PUT",
-          json: options
-        }, cb);
+
+        //before we attempt to send the data to airborne, validate on our side first
+        var thingId = thing.name;
+        if (tag && tag !== 'master') {
+          thingId += ':tag:' + tag;
+        }
+
+        var doSave = function() {
+          options.doc.type = thing.name;
+          requestProxy({
+            uri: apiUrlBase + thing.name + "/" + tag + "?token=" + this.apiKey,
+            method: "PUT",
+            json: options
+          }, cb);
+        };
+
+        var doValidate = function(schemaDoc) {
+          var validationResult = validate(options.doc, schemaDoc.schema);
+          if (validationResult.valid) {
+            doSave();
+          } else {
+            cb('Validation failed for instace of ' + thingId + '. Error: ' + JSON.stringify(validationResult));
+          }
+        };
+
+        if (jsonSchemas[thingId]) {
+          doValidate(jsonSchemas[thingId]);
+        } else {
+          requestProxy({
+            uri: _options.url + '/_rest/airborne/json-schema/' + thingId,
+            method: 'GET'
+          }, function(err, schemaDoc) {
+            if (err) {
+              cb("Unable to fetch validation document for '" + thingId + "'");
+            } else {
+              jsonSchemas[thingId] = schemaDoc;
+              doValidate(schemaDoc);
+            }
+          });
+        }
       },
       remove: function(options, cb) {
         var tag = resolveTag(options, thing);
