@@ -20,7 +20,10 @@ exports.createClient = function(_options, _cb) {
         var result = null;
         // inspect statusCode for non-200 block code (which means error)
         if (!res.statusCode || (res.statusCode < 200 || res.statusCode > 299)) {
-          cb(body || 'error making request');
+          cb({
+            statusCode: res.statusCode, 
+            body: body || 'error making request'
+          });
         } else {
           result = body;
           if (body && typeof body === "string") {
