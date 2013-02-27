@@ -3,9 +3,6 @@ var _ = require("underscore")._,
     qs = require("querystring"),
     validate = require('json-schema').validate;
 
-//local cache for json-schema validation docs (only fetch once per app lifetime)
-//TODO: make aggressive caching configurable
-var jsonSchemas = {};
 
 exports.createClient = function(_options, _cb) {
   _options = _.extend({
@@ -102,8 +99,8 @@ exports.createClient = function(_options, _cb) {
           }
         };
 
-        if (jsonSchemas[thingId]) {
-          doValidate(jsonSchemas[thingId]);
+        if (api.schema) {
+          doValidate(api.schema);
         } else {
           requestProxy({
             uri: _options.url + '/_rest/airborne/json-schema/' + thingId,
@@ -112,7 +109,7 @@ exports.createClient = function(_options, _cb) {
             if (err) {
               cb("Unable to fetch validation document for '" + thingId + "'");
             } else {
-              jsonSchemas[thingId] = schemaDoc;
+              api.schema = schemaDoc;
               doValidate(schemaDoc);
             }
           });
@@ -142,10 +139,30 @@ exports.createClient = function(_options, _cb) {
   }, function(error, res, body) {
     if (!error && res.statusCode == 200) {
       var things = JSON.parse(body); // array of strings.
+
+      var sem = things.length;
+
       _.each(things, function(thing) {
         client[thing.name] = buildClientApi(thing, client.apiKey);
+
+        //fetch the json-schemas in advance
+        requestProxy({
+          uri: _options.url + '/_rest/airborne/json-schema/' + thing.name,
+          method: 'GET'
+        }, function(err, schemaDoc) {
+          if (err) {
+            cb("Unable to fetch validation document for '" + thingId + "'");
+          } else {
+            client[thing.name].schema = schemaDoc.schema;
+
+            sem--;
+            if (sem == 0) {
+              _cb && _cb(null, client);
+            }
+          }
+        });
       });
-      _cb && _cb(null, client);
+      
     } else {
       _cb && _cb("Unable to retrieve available APIs.");
     }
