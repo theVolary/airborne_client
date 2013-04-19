@@ -48,6 +48,10 @@ exports.createClient = function(_options, _cb) {
     var api = {
       apiKey: apiKey,
       get: function(options, cb) {
+        if (!options.id) {
+          return cb('cannot call get without an id; thing name: ' + thing.name);
+        }
+
         var tag = resolveTag(options, thing);
         requestProxy({ 
           uri: apiUrlBase + thing.name + "/" + tag + "/" + options.id + "?token=" + this.apiKey
