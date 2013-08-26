@@ -135,6 +135,20 @@ exports.createClient = function(_options, _cb) {
     if (!error && res.statusCode == 200) {
       var things = JSON.parse(body); // array of strings.
 
+      //NOTE: this is using case-sensitive comparison
+      if (_options.onlyInclude) {
+        things = _.select(things, function(thing) {
+          return _options.onlyInclude.indexOf(thing.name) > -1;
+        });
+      }
+
+      //NOTE: this is using case-sensitive comparison
+      if (_options.exclude) {
+        things = _.reject(things, function(thing) {
+          return _options.exclude.indexOf(thing.name) > -1;
+        });
+      }
+
       var sem = things.length;
 
       _.each(things, function(thing) {
