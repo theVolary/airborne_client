@@ -1,14 +1,14 @@
 {
-    "name": "airborne_client",
-    "description": "Utility for connecting to airborne",
-    "version": "0.1.3",
-    "main": "index.js",
-    "engines": {
-        "node": ">=0.4.x"
-    },
-    "dependencies": {
-        "request": "2.9.x",
-        "underscore": "1.3.x",
-        "json-schema": "0.2.x"
-    }
+  "name": "airborne_client",
+  "description": "Utility for connecting to airborne",
+  "version": "0.1.3",
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.4.x"
+  },
+  "dependencies": {
+    "request": "2.x",
+    "underscore": "~1.5.2",
+    "json-schema": "0.2.x"
+  }
 }
