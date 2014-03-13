@@ -44,7 +44,7 @@ exports.createClient = function(_options, _cb) {
 
   function doSave(thing, options, tag, cb) {
     options.doc.type = thing.name;
-    options = runRequestHook(options);
+    options = runModRequestHook(options);
     var headers = extractHeaders(options); // This has to be here instead of in requestProxy because otherwise headers may get sent in the json below.
     requestProxy({
       uri: apiUrlBase + thing.name + "/" + tag,
@@ -76,9 +76,17 @@ exports.createClient = function(_options, _cb) {
     return headers;
   }
 
-  function runRequestHook(options) {
-    if (_options.requestHookFn) {
-      var hookOutput = _options.requestHookFn.call(this, options);
+  function runGetRequestHook(options) {
+    if (_options.getRequestHookFn) {
+      var hookOutput = _options.getRequestHookFn.call(this, options);
+      if (hookOutput) options = hookOutput;
+    }
+    return options;
+  }
+
+  function runModRequestHook(options) {
+    if (_options.modRequestHookFn) {
+      var hookOutput = _options.modRequestHookFn.call(this, options);
       if (hookOutput) options = hookOutput;
     }
     return options;
@@ -94,7 +102,7 @@ exports.createClient = function(_options, _cb) {
         if (!options.id) {
           return cb('cannot call get without an id; thing name: ' + thing.name);
         }
-        options = runRequestHook(options);
+        options = runGetRequestHook(options);
         var tag = resolveTag(options, thing);
         requestProxy({ 
           uri: apiUrlBase + thing.name + "/" + tag + "/" + options.id,
@@ -104,7 +112,7 @@ exports.createClient = function(_options, _cb) {
 
       list: function(options, cb) {
         var tag = resolveTag(options, thing);
-        options = runRequestHook(options);
+        options = runGetRequestHook(options);
         var headers = extractHeaders(options);
         requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag + "/list/?q=" + qs.escape(JSON.stringify(options)),
@@ -114,7 +122,7 @@ exports.createClient = function(_options, _cb) {
 
       exists: function(options, cb) {
         var tag = resolveTag(options, thing);
-        options = runRequestHook(options);
+        options = runGetRequestHook(options);
         requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag + "/exists/" + options.id,
           headers: extractHeaders(options)
@@ -123,7 +131,7 @@ exports.createClient = function(_options, _cb) {
 
       find: function(options, cb) {
         var tag = resolveTag(options, thing);
-        options = runRequestHook(options);
+        options = runGetRequestHook(options);
         var headers = extractHeaders(options);
         requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag + "/" + "?q=" + qs.escape(JSON.stringify(options)),
@@ -144,7 +152,7 @@ exports.createClient = function(_options, _cb) {
       
       remove: function(options, cb) {
         var tag = resolveTag(options, thing);
-        options = runRequestHook(options);
+        options = runModRequestHook(options);
         var headers = extractHeaders(options);
         requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag,
