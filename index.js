@@ -43,11 +43,13 @@ exports.createClient = function(_options, _cb) {
   }
 
   function doSave(thing, options, tag, cb) {
+    var headers = extractHeaders(options);
     options.doc.type = thing.name;
     requestProxy({
       uri: apiUrlBase + thing.name + "/" + tag,
       method: "PUT",
-      json: options
+      json: options,
+      headers: headers
     }, cb);
   }
 
@@ -64,6 +66,15 @@ exports.createClient = function(_options, _cb) {
     }
   }
 
+  function extractHeaders(options) {
+    var headers = null;
+    if (options.headers) {
+      headers = options.headers;
+      delete options.headers;
+    }
+    return headers;
+  }
+
   function buildClientApi(thing) {
     var api = {
       thing: thing.thing,
@@ -77,28 +88,34 @@ exports.createClient = function(_options, _cb) {
 
         var tag = resolveTag(options, thing);
         requestProxy({ 
-          uri: apiUrlBase + thing.name + "/" + tag + "/" + options.id
+          uri: apiUrlBase + thing.name + "/" + tag + "/" + options.id,
+          headers: extractHeaders(options)
         }, cb);
       },
 
       list: function(options, cb) {
         var tag = resolveTag(options, thing);
+        var headers = extractHeaders(options);
         requestProxy({
-          uri: apiUrlBase + thing.name + "/" + tag + "/list/?q=" + qs.escape(JSON.stringify(options))
+          uri: apiUrlBase + thing.name + "/" + tag + "/list/?q=" + qs.escape(JSON.stringify(options)),
+          headers: headers
         }, cb);
       },
 
       exists: function(options, cb) {
         var tag = resolveTag(options, thing);
         requestProxy({
-          uri: apiUrlBase + thing.name + "/" + tag + "/exists/" + options.id
+          uri: apiUrlBase + thing.name + "/" + tag + "/exists/" + options.id,
+          headers: extractHeaders(options)
         }, cb);
       },
 
       find: function(options, cb) {
         var tag = resolveTag(options, thing);
+        var headers = extractHeaders(options);
         requestProxy({
-          uri: apiUrlBase + thing.name + "/" + tag + "/" + "?q=" + qs.escape(JSON.stringify(options))
+          uri: apiUrlBase + thing.name + "/" + tag + "/" + "?q=" + qs.escape(JSON.stringify(options)),
+          headers: headers
         }, cb);
       },
 
@@ -115,10 +132,12 @@ exports.createClient = function(_options, _cb) {
       
       remove: function(options, cb) {
         var tag = resolveTag(options, thing);
+        var headers = extractHeaders(options);
         requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag,
           method: "DELETE",
-          json: options
+          json: options,
+          headers: headers
         }, cb);
       }
     };
