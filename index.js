@@ -17,7 +17,7 @@ exports.createClient = function(_options, _cb) {
         // inspect statusCode for non-200 block code (which means error)
         if (!res.statusCode || (res.statusCode < 200 || res.statusCode > 299)) {
           cb({
-            statusCode: res.statusCode, 
+            statusCode: res.statusCode,
             body: body || 'error making request'
           });
         } else {
@@ -30,15 +30,15 @@ exports.createClient = function(_options, _cb) {
             }
           }
           cb(null, result);
-        }        
-      }      
+        }
+      }
     });
   }
 
   function resolveTag(options, thing) {
     var tag = options && options.tag;
-    return tag || (_options.tags && _options.tags[thing.name] 
-                    ? _options.tags[thing.name] 
+    return tag || (_options.tags && _options.tags[thing.name]
+                    ? _options.tags[thing.name]
                     : _options.tag) || "master";
   }
 
@@ -62,7 +62,7 @@ exports.createClient = function(_options, _cb) {
       var thingId = thing.name;
       if (tag && tag !== 'master') {
         thingId += ':tag:' + tag;
-      }       
+      }
       cb('Validation failed for instace of ' + thingId + '. Error: ' + JSON.stringify(validationResult));
     }
   }
@@ -104,7 +104,7 @@ exports.createClient = function(_options, _cb) {
         }
         options = runGetRequestHook(options);
         var tag = resolveTag(options, thing);
-        requestProxy({ 
+        requestProxy({
           uri: apiUrlBase + thing.name + "/" + tag + "/" + options.id,
           headers: extractHeaders(options)
         }, cb);
@@ -149,7 +149,7 @@ exports.createClient = function(_options, _cb) {
           doSave(thing, options, tag, cb);
         }
       },
-      
+
       remove: function(options, cb) {
         var tag = resolveTag(options, thing);
         options = runModRequestHook(options);
@@ -166,7 +166,7 @@ exports.createClient = function(_options, _cb) {
   }
 
   var client = {};
-  
+
   // Build client api based on what the server reports back.
   request({
     method: "GET",
@@ -196,9 +196,9 @@ exports.createClient = function(_options, _cb) {
       });
 
       _cb(null, client);
-      
+
     } else {
-      _cb && _cb("Unable to retrieve available APIs.");
+      _cb && _cb("Unable to retrieve available APIs from " + _options.url + ' due to: ' + require('util').inspect(error));
     }
   });
 
